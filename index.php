@@ -13,11 +13,27 @@ class Servico{
 
 $servico = new Servico;
 
- /*Container dependency injection*/
- $app->get('/servico', function(Request $request, Response $response){
+/*Container dependency injection*/
+
+// Container pimple
+$container = $app->getContainer();
+$container['servico'] = function(){
+    return new Servico; //injetando a dependência dentro do container do slim
+};
+
+$app->get('/servico', function(Request $request, Response $response){
     
-    
+    $servico = $this->get('servico'); //recuperando a dependência
 });
+
+//controllers como serviço
+//slim já procura a classe de acordo com o namespace informado e instância o objeto para nós, passando o container como parâmetro do construtor
+
+$container = $app->getContainer();
+$container['Home'] = function(){
+    return new MyApp\controllers\Home( new MyApp\View ); //injetando a dependência dentro do container do slim
+};
+$app->get('/usuario', 'Home:index');
 
 
 $app->run();
