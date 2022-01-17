@@ -2,18 +2,143 @@
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 require 'vendor/autoload.php';
 
 $app = new \Slim\App;
 
-class Servico{
+$container = $app->getContainer();
+$container['db'] = function(){
+    $capsule = new Capsule;
+
+    $capsule->addConnection([
+        'driver' => 'mysql',
+        'host' => 'localhost',
+        'database' => 'slim',
+        'username' => 'root',
+        'password' => '',
+        'charset' => 'utf8',
+        'collation' => 'utf8_unicode_ci',
+        'prefix' => '',
+    ]);
+
+    $capsule->setAsGlobal();
+    $capsule->bootEloquent();
+
+    return $capsule;
+};
+
+$app->get('/usuarios', function(Request $request, Response $response){
+    $db = $this->get('db');
+
+    /*$db->schema()->dropIfExists('usuarios');
+
+    //criando tabela
+    $db->schema()->create('usuarios', function($table){
+        $table->increments('id');
+        $table->string('nome');
+        $table->string('email');
+        $table->timestamps();
+    });*/
+
+    //inserindo
+
+    /*$db->table('usuarios')->insert([
+        'nome'=>'Murillo',
+        'email'=>'teste@teste.com'
+    ]);*/
+
+    //atualizando
+    /*$db->table('usuarios')
+        ->where('id',1)
+        ->update([
+            'nome'=>'Murillo Aguiar',
+        ]);
+    */
+
+    //deletando
+    /*$db->table('usuarios')
+        ->where('id',1)
+        ->delete();
+    */
+
+    //listar
+    $usuarios = $db->table('usuarios')->get();
+    foreach($usuarios as $usuario){
+        echo $usuario->nome.'<br>';    
+    }
+
+});
+
+
+$app->run();
+
+
+/* Tipos de respostas 
+cabeçalho, texto, Json, XML
+
+$app->get('/header', function(Request $request, Response $response){
+    
+    $response->write('Esse é um retorno header');
+    return $response->withHeader('allow', 'PUT') //permite apenas requisições do tipo PUT
+        ->withAddedHeader('Content-length', 10); //define o tamanho do conteúdo
+
+});
+
+$app->get('/json', function(Request $request, Response $response){
+    
+    //$response->write('{"nome": "Murillo Aguiar}'); //conteúdo entendido como um texto html
+
+    return $response->withJson([
+        "nome"=>"Murillo Aguiar",
+        "endereco"=>"endereço rua bairro"
+    ]); //converte dados de um array para um json
+
+});
+
+$app->get('/xml', function(Request $request, Response $response){
+    
+    $xml = file_get_contents('arquivo');
+    $response->write($xml);
+
+    return $reponse->withHeader('Content-Type', 'application/xml');
+});
+
+
+/*middleware
+$app->add(function($request, $response, $next){
+    $response->write('Inicio camada 1 + ');
+    //return $next($request, $response);
+    $response = $next($request, $response);
+    $response->write(' + fim camada 1');
+    return $response;
+});
+
+$app->add(function($request, $response, $next){
+    $response->write('Inicio camada 2 + ');
+    //return $next($request, $response);
+    $response = $next($request, $response);
+    $response->write(' + fim camada 2');
+    return $response;
+});
+
+
+
+$app->get('/middleware', function(Request $request, Response $response){
+    $response->write(' + Ação principal 1');
+
+});
+
+$app->run();*/
+
+/*class Servico{
 
 }
 
 $servico = new Servico;
 
-/*Container dependency injection*/
+/*Container dependency injection
 
 // Container pimple
 $container = $app->getContainer();
@@ -36,7 +161,7 @@ $container['Home'] = function(){
 $app->get('/usuario', 'Home:index');
 
 
-$app->run();
+$app->run();*/
 
 /* padrao psr-7
 $app->get('/postagens', function(Request $request, Response $response){
