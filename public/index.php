@@ -22,6 +22,8 @@ require __DIR__ . '/../src/dependencies.php';
 // Register middleware
 require __DIR__ . '/../src/middleware.php';
 
+$container->get('db');
+
 // Register routes
 require __DIR__ . '/../src/routes.php';
 
